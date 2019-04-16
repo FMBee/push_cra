@@ -1,44 +1,21 @@
 <?php
 
-class FindCraByIds {
+class FindCraByIds extends ApiMethod {
     
  
-    const URL = 'https://www.dmc.sfr-sh.fr/DmcWS/1.5.6/JsonService/SupervisionWS/findCraByIds';
+    const API = 'SupervisionWS/findCraByIds';
     
-    private $connect = [
-        
-        'serviceId'         => '',
-        'servicePassword'   => '',
-        'spaceId'           => '',
-        ];
-    
-    private $results;
-    
-    
-    public function __construct(array $connect) {
-        
-        
-        foreach ( $connect as $key => $value ) {
-            
-            $this->connect[$key] = $value;
-        }
-     
-    }
     
     public function sendRequest(string $seek) {
         
-        $query = 
-            self::URL
+        $this->query .= 
+            self::API
             .'?authenticate='   .urlencode(json_encode($this->connect))
-            .'&refExt='         .urlencode($seek);
+            .'&contactIds=['    .urlencode($seek) .']';
         
-        $this->results = file_get_contents($query);
-        
+        $this->analyse(file_get_contents($this->query));
+            
         return $this;
     }
     
-    public function results() {
-        
-        return $this->results;
-    }
 }
