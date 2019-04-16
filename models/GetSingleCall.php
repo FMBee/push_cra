@@ -3,7 +3,7 @@
 class GetSingleCall {
     
  
-    const URL = 'https://www.dmc.sfr-sh.fr/DmcWS/1.5.6/JsonService/MessagesUnitairesWS/ getSingleCallCra';
+    const URL = 'https://www.dmc.sfr-sh.fr/DmcWS/1.5.6/JsonService/MessagesUnitairesWS/getSingleCallCra';
     
     private $connect = [
         
