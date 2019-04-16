@@ -1,16 +1,60 @@
 <?php
-
-    $_DEV = true;
+    /*
+     * Lancement en ligne de commmande : php push-get.php [TEST] [DEV]
+     *
+     * Options
+     *
+     *  - TEST  : mode test
+     *  - DEV  : mode DEV et bases DEV 
+     *
+     */
+    
+    
+    define('_EXIT', 'exit - aborted');
+    
+    $_TEST 	= false;
+    $_DEV 	= false;
+    
+    foreach ( $argv as $arg ) {
+        
+        if ( strtoupper($arg) == 'TEST' )    $_TEST = true;
+        if ( strtoupper($arg) == 'DEV' )     $_DEV = true;
+    }
     
     require_once 'core/init.php';
     
+    //TEST:
     
-    $call = new GetSingleCall(
-        [
-            "serviceId" => "9100120861",
-            "servicePassword" => "zd7A1ZxO",
-            "spaceId" => "156925"
-        ]
-        );
+    //:TEST
     
-    print_r( $call->sendRequest('id001')->results() );
+    //------------------ creation logs
+    
+    $logs = new Log(Config::get('logs/push'));
+    
+    if ( $logs->error() )      error('Erreur sur fichier log', true);
+    
+    $logs->init();
+    
+    $errMessage = '';
+    
+    
+    //------------------ TRAITEMENT
+    
+    $spaceId = '156925';
+    
+    if ( array_search($spaceId, array_keys(Config::get('agences'))) === false ) {
+        
+        echo 'spaceId introuvalble';    
+    }
+    else {
+        
+        $call = new GetSingleCallCra(
+            [
+                "serviceId"         => Config::get('agences')[$spaceId][DMC],
+                "servicePassword"   => Config::get('agences')[$spaceId][MDP],
+                "spaceId"           => $spaceId
+            ]
+            );
+        
+        print_r( $call->sendRequest('id001')->results() );
+    }

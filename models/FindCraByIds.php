@@ -1,9 +1,9 @@
 <?php
 
-class GetSingleCall {
+class FindCraByIds {
     
  
-    const URL = 'https://www.dmc.sfr-sh.fr/DmcWS/1.5.6/JsonService/MessagesUnitairesWS/getSingleCallCra';
+    const URL = 'https://www.dmc.sfr-sh.fr/DmcWS/1.5.6/JsonService/SupervisionWS/findCraByIds';
     
     private $connect = [
         
@@ -16,6 +16,7 @@ class GetSingleCall {
     
     
     public function __construct(array $connect) {
+        
         
         foreach ( $connect as $key => $value ) {
             
