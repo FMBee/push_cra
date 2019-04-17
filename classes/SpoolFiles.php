@@ -76,8 +76,7 @@ debug($cra);
         $mail = sendMail(
             'SMS : réponse reçue',
             $html,
-            ['fredericmevollon@universpneus.com']
-            // [Config::get('agences')[$spaceId][MAIL]]
+            $GLOBALS['_DEV'] ? ['fredericmevollon@universpneus.com'] : [Config::get('agences')[$spaceId][MAIL]]
             );
         
         $GLOBALS['logs']->put($mail === true ? '--> mail envoyé' : '--> erreur : '.$mail);
@@ -99,10 +98,9 @@ debug($cra);
             ";
             
         $mail = sendMail(
-            'SMS : erreur détectée',
+            'SMS : erreur survenue',
             $html,
-            ['fredericmevollon@universpneus.com']
-            // [Config::get('agences')[$spaceId][MAIL]]
+            $GLOBALS['_DEV'] ? ['fredericmevollon@universpneus.com'] : [Config::get('agences')[$spaceId][MAIL]]
             );
         
         $GLOBALS['logs']->put($mail === true ? '--> mail envoyé' : '--> erreur : '.$mail);
