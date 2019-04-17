@@ -9,6 +9,12 @@ class SpoolFiles {
     
     public function __construct(array $files) {
         
+        if ( empty($files) ) {
+            
+            $GLOBALS['logs']->put("aucun fichier à traiter");
+            return;            
+        }
+        
         foreach( $files as $file ) {
             
             $GLOBALS['logs']->put("fichier traité : {$file}");
@@ -157,6 +163,6 @@ debug($cra);
             "serviceId"         => Config::get('agences')[$this->spaceId][DMC],
             "servicePassword"   => Config::get('agences')[$this->spaceId][MDP],
             "spaceId"           => $this->spaceId
-        ];
+            ];
     }
 }

@@ -31,14 +31,17 @@
     
     $logs = new Log(Config::get('logs/push'));
     
-    if ( $logs->error() )      error('Erreur sur fichier log', true);
+    if ( $logs->error() )      echo('Erreur sur fichier log');
     
 
     //------------------ TRAITEMENT
     
     $logs->init();
     
-    $run = new spoolFiles(glob(Config::get('params/prefix')));
+    $run = new spoolFiles(
+        
+        glob(Config::get('params/prefix'))
+        );
     
     $logs->close();
 
