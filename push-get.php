@@ -33,14 +33,14 @@
     
     if ( $logs->error() )      error('Erreur sur fichier log', true);
     
-    $logs->init();
-    
-    
+
     //------------------ TRAITEMENT
+    
+    $logs->init();
     
     $run = new spoolFiles(glob(Config::get('params/prefix')));
     
-
+    $logs->close();
 
 
     
