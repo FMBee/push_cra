@@ -35,36 +35,16 @@
     
     $logs->init();
     
-    $errMessage = '';
-    
     
     //------------------ TRAITEMENT
     
-    $spaceId = '156925';
+    $run = new spoolFiles(glob(Config::get('params/prefix')));
     
-    if ( array_search($spaceId, array_keys(Config::get('agences'))) === false ) {
-        
-        echo 'spaceId introuvable';    
-    }
-    else {
-        
-        $call = new GetSingleCallCra(
-            [
-                "serviceId"         => Config::get('agences')[$spaceId][DMC],
-                "servicePassword"   => Config::get('agences')[$spaceId][MDP],
-                "spaceId"           => $spaceId
-            ]
-            );
-        
-        print_r( $call->sendRequest('id001')->results() );
-        
-        $call = new FindCraByIds(
-            [
-                "serviceId"         => Config::get('agences')[$spaceId][DMC],
-                "servicePassword"   => Config::get('agences')[$spaceId][MDP],
-                "spaceId"           => $spaceId
-            ]
-            );
-        
-        print_r( $call->sendRequest('2482508840')->results() );
-    }
+
+
+
+    
+
+
+  
+    

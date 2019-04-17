@@ -1,6 +1,6 @@
 <?php
 
-abstract class AbstractObject {
+class AutoObject {
     
 
     private $values = [];
@@ -34,7 +34,16 @@ abstract class AbstractObject {
      */
     public function __set($name, $value) {
         
-        $this->values[$name] = trim($value);
+        switch ( gettype($value) ) {
+            
+            case 'string':
+                
+                $this->values[$name] = trim($value);
+                break;
+                
+            default:
+                $this->values[$name] = $value;
+        }
     }
 
     /**

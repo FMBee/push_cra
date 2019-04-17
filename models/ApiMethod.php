@@ -21,7 +21,7 @@ abstract class ApiMethod {
     
     public function __construct(array $connect) {
 
-debug($connect);
+// debug($connect);
 
         foreach ( $connect as $key => $value ) {
             
@@ -48,7 +48,7 @@ debug($connect);
             
             if ( $results['success'] ) {
                 
-                $this->results = $results;
+                $this->results = $results['response'];
             }
             else {
 
@@ -61,5 +61,15 @@ debug($connect);
     public function results() {
         
         return $this->results;
+    }
+    
+    public function error() {
+        
+        return $this->error;
+    }
+    
+    public function message() {
+        
+        return $this->message;
     }
 }

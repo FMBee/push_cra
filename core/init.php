@@ -1,20 +1,45 @@
 <?php
+	
+	error_reporting( $GLOBALS['_DEV'] ? (E_ERROR | E_WARNING | E_PARSE | E_NOTICE) : 0 );
 
-    //entêtes de la table [agences]
+	require_once 'functions.php';
+
+	spl_autoload_register( function($class) {
+		
+		$filename = 'classes/' .($class) .'.php';
+	
+		if (is_readable($filename)) {
+			
+			require_once $filename;
+		}
+
+		$filename = 'models/' .($class) .'.php';
+	
+		if (is_readable($filename)) {
+			
+			require_once $filename;
+		}
+	});
+	
+
+    //entêtes du tableau [agences]
+    
     define('CODE', 0);
     define('DMC' , 1);
     define('MDP' , 2);
     define('MAIL', 3);
 
 
+    //parametres
+    
 	$GLOBALS['config'] = [
 			
-		'pricing' => [
+		'base' => [
 	        'host'      => 'localhost',
 	        'port'  	=> '',
 	        'username'  => 'root',
 	        'password'  => 'eclipse',
-	        'db'        => 'pricing_indus',
+	        'db'        => 'base',
 	    ],
 		'logs' => [
 			'push'	=> 'logs/push.log',
@@ -31,7 +56,7 @@
 		    'listA'		=> [
 			],
 			'listBCC'	=> [
- 							'mathieulequin@universpneus.com',
+//  							'mathieulequin@universpneus.com',
 							'fredericmevollon@universpneus.com'
 			],
 		],
@@ -78,27 +103,8 @@
 	        '156943' => ['VILL', '9100120873', 'dQz9Y28x', 'villefrance@universpneus.fr'],
 	        '156928' => ['VISL', '9100120865', '2q8zyJi8', 'villeneuve@universpneus.fr'],
         ],
-		'params' => []
+		'params' => [
+		    'prefix' => 'push_*'
+		]
 	];
-	
-	error_reporting( $GLOBALS['_DEV'] ? (E_ERROR | E_WARNING | E_PARSE | E_NOTICE) : 0 );
-
-	spl_autoload_register( function($class) {
-		
-		$filename = 'classes/' .($class) .'.php';
-	
-		if (is_readable($filename)) {
-			
-			require_once $filename;
-		}
-
-		$filename = 'models/' .($class) .'.php';
-	
-		if (is_readable($filename)) {
-			
-			require_once $filename;
-		}
-	});
-	
-	require_once 'functions.php';
 
