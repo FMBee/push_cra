@@ -1,0 +1,1 @@
+crontab * * * * * cd /var/www/html/push_cra ; php push-get.php DEV

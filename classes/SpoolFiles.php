@@ -23,6 +23,7 @@ class SpoolFiles {
         if ( empty($files) ) {
             
             $this->logs->put("aucun fichier a traiter");
+            $this->logs->close();
             return;            
         }
         
