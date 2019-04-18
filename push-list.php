@@ -2,7 +2,7 @@
 
     error_reporting(E_ALL);
 
-    $dir = glob('push_*');
+    $dir = glob('done/push_*');
     
     echo "
 <!DOCTYPE html>
@@ -37,8 +37,10 @@
 </style>
 </head>
 <body>
+  <button onClick='showAll();'>&nbsp;+&nbsp;</button>
+  <button onClick='showNone();'>&nbsp;-&nbsp;</button>
 ";
-    if ( empty($dir) )  echo "Aucun fichier à lister";
+    if ( empty($dir) )  echo "Aucun fichier à lister<br>";
     
     foreach( $dir as $file ) {
         
@@ -56,13 +58,17 @@
     
     echo "
 <script>
+
 var acc = document.getElementsByClassName('accordion');
 var i;
         
 for (i = 0; i < acc.length; i++) {
+
   acc[i].addEventListener('click', function() {
+
     this.classList.toggle('active');
     var panel = this.nextElementSibling;
+
     if (panel.style.maxHeight){
       panel.style.maxHeight = null;
     } else {
@@ -70,6 +76,31 @@ for (i = 0; i < acc.length; i++) {
     }
   });
 }
+
+function showAll() {
+
+    var acc = document.getElementsByClassName('accordion');
+    var i;
+            
+    for (i = 0; i < acc.length; i++) {
+
+        var panel = acc[i].nextElementSibling;
+        panel.style.maxHeight = panel.scrollHeight + 'px';
+    }
+}
+
+function showNone() {
+
+    var acc = document.getElementsByClassName('accordion');
+    var i;
+            
+    for (i = 0; i < acc.length; i++) {
+
+        var panel = acc[i].nextElementSibling;
+        panel.style.maxHeight = null;
+    }
+}
+
 </script>
         
 </body>

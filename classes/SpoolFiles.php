@@ -17,15 +17,14 @@ class SpoolFiles {
             echo('Erreur sur fichier log');
             return;
         }
-        $this->logs->init();
-        
         
         if ( empty($files) ) {
             
-            $this->logs->put("aucun fichier a traiter");
-            $this->logs->close();
+            echo("Aucun fichier a traiter");
             return;            
         }
+
+        $this->logs->init();
         
         foreach( $files as $file ) {
             
@@ -70,6 +69,7 @@ class SpoolFiles {
             
             rename($file, Config::get('params/moveDir').$file);
         }
+        
         $this->logs->close();
     }
     
@@ -94,7 +94,7 @@ debug($cra);
                         {$cra['callResponse']}
                         ";
                         
-                    $object = 'SMS : réponse reçue';
+                    $object = "SMS au {$cra['to']} : réponse reçue";
                     break;
                     
                 default:
@@ -106,13 +106,15 @@ debug($cra);
                         {$cra['lastResult']}
                         ";
                         
-                    $object = 'SMS : erreur survenue';
+                    $object = "SMS au {$cra['to']} : erreur survenue";
             }
                 
             $mail = sendMail(
                 $object,
                 $html,
-                $GLOBALS['_DEV'] ? ['fredericmevollon@universpneus.com'] : [Config::get('agences')[$spaceId][MAIL]]
+                $GLOBALS['_DEV'] ? 
+                    ['fredericmevollon@universpneus.com'] : 
+                    array_merge([Config::get('agences')[$this->spaceId][MAIL]], [Config::get('mailing/listBCC')])
                 );
             
             $this->logs->put($mail === true ? '--> mail envoye' : '--> erreur : '.$mail);
@@ -124,7 +126,9 @@ debug($cra);
             $mail = sendMail(
                 'Push-Cra : erreurs de traitement',
                 'logs : '.Config::get('logs/link'),
-                $GLOBALS['_DEV'] ? ['fredericmevollon@universpneus.com'] : [Config::get('mailing/listBCC')]
+                $GLOBALS['_DEV'] ? 
+                    ['fredericmevollon@universpneus.com'] : 
+                    [Config::get('mailing/listBCC')]
                 );
             
             $this->logs->put($mail === true ? '--> mail ADMIN envoye' : '--> erreur : '.$mail);
