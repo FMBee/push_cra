@@ -25,8 +25,6 @@
     
     //:TEST
     
-    //------------------ TRAITEMENT
-    
     $run = new SpoolFiles(
         
         glob(Config::get('params/prefix'))

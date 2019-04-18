@@ -45,14 +45,30 @@
 			'push'	=> 'logs/push.log',
 			'link'	=> 'http://vps300047.ovh.net/push_cra/logs/push.log',
 		],
-		'mailing' => [
+		'mailing_dev' => [
 		    'host'		=> '10.106.76.135',
-            'port'      => 25,          //587
-            'secure'    => null,         //'TLS',    
+            'port'      => 25,           
+            'secure'    => null,           
 		    'auth'		=> false,
 		    'username'	=> '',
 		    'password'	=> '',
-		    'from'		=> 'pricing@groupegarrigue.fr',
+		    'from'		=> 'ged@groupegarrigue.fr',
+		    'fromname'	=> 'GIE Garrigue',
+		    'listA'		=> [
+			],
+			'listBCC'	=> [
+//  							'mathieulequin@universpneus.com',
+							'fredericmevollon@universpneus.com'
+			],
+		],
+		'mailing' => [
+		    'host'		=> '10.106.76.135',
+            'port'      => 25,           
+            'secure'    => null,         
+		    'auth'		=> false,
+		    'username'	=> '',
+		    'password'	=> '',
+		    'from'		=> 'ged@groupegarrigue.fr',
 		    'fromname'	=> 'GIE Garrigue',
 		    'listA'		=> [
 			],

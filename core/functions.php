@@ -5,25 +5,27 @@
         require_once ('lib/PHPMailer/PHPMailer.php');
         require_once ('lib/PHPMailer/SMTP.php');
         
+        $conf = $GLOBALS['_DEV'] ? 'mailing_dev/' : 'mailing/';
+        
         $mail = new PHPMailer ();
         
         $mail->isSMTP();
         
-        $mail->Host 				= Config::get('mailing/host');
-        $mail->Port 				= Config::get('mailing/port');
-        $mail->SMTPAuth 			= Config::get('mailing/auth');
-        $mail->SMTPSecure 			= Config::get('mailing/secure');
-        $mail->Username 			= Config::get('mailing/username');
-        $mail->Password 			= Config::get('mailing/password');
+        $mail->Host 				= Config::get($conf.'host');
+        $mail->Port 				= Config::get($conf.'port');
+        $mail->SMTPAuth 			= Config::get($conf.'auth');
+        $mail->SMTPSecure 			= Config::get($conf.'secure');
+        $mail->Username 			= Config::get($conf.'username');
+        $mail->Password 			= Config::get($conf.'password');
         
-        $mail->From 				= Config::get('mailing/from');
-        $mail->FromName 			= Config::get('mailing/fromname');
+        $mail->From 				= Config::get($conf.'from');
+        $mail->FromName 			= Config::get($conf.'fromname');
         $mail->isHTML( 				true );
-        $mail->addReplyTo( 			Config::get('mailing/from'), utf8_decode(Config::get('mailing/fromname')) );
+        $mail->addReplyTo( 			Config::get($conf.'from'), utf8_decode(Config::get($conf.'fromname')) );
         
         if ( $die ) {
             
-            foreach( Config::get('mailing/listBCC') as $adr ) {
+            foreach( Config::get($conf.'listBCC') as $adr ) {
                 
                 $mail->addAddress($adr);
             }
@@ -33,7 +35,7 @@
                 
                 $mail->addAddress($adr);
             }
-            foreach( Config::get('mailing/listBCC') as $adr ) {
+            foreach( Config::get($conf.'listBCC') as $adr ) {
                 
                 $mail->addBCC($adr);
             }
