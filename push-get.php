@@ -29,7 +29,7 @@
     
     //------------------ TRAITEMENT
     
-    $run = new spoolFiles(
+    $run = new SpoolFiles(
         
         glob(Config::get('params/prefix'))
         );
