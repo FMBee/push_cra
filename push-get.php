@@ -10,8 +10,6 @@
      */
     
     
-    define('_EXIT', 'exit - aborted');
-    
     $_TEST 	= false;
     $_DEV 	= false;
     

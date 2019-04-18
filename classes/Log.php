@@ -7,6 +7,9 @@ class Log {
 	
 	public function __construct($file, $mode = 'a+'){
 		
+	    
+	    date_default_timezone_set('Europe/Paris');
+	    
 		$this->_handle = fopen($file, $mode);
 		
 		$this->_error = !$this->_handle;
@@ -26,12 +29,12 @@ class Log {
 	public function init() {
 		
 		$this->put('*--------------------------------*', '');
-		$this->put((new \Datetime())->format('d-m-Y H:i:s') .' process begins');
+		$this->put(date('d-m-Y H:i:s') .' process begins');
 	}
 	
 	public function close() {
 	
-	    $this->put((new \Datetime())->format('d-m-Y H:i:s') .' end of process');
+	    $this->put(date('d-m-Y H:i:s') .' end of process');
 		
 		fclose($this->_handle);
 	}
