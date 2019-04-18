@@ -38,6 +38,7 @@
 </head>
 <body>
 ";
+    if ( empty($dir) )  echo "Aucun fichier à lister";
     
     foreach( $dir as $file ) {
         

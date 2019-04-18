@@ -43,6 +43,7 @@
 	    ],
 		'logs' => [
 			'push'	=> 'logs/push.log',
+			'link'	=> 'http://vps300047.ovh.net/push_cra/logs/push.log',
 		],
 		'mailing' => [
 		    'host'		=> '10.106.76.135',
@@ -104,7 +105,8 @@
 	        '156928' => ['VISL', '9100120865', '2q8zyJi8', 'villeneuve@universpneus.fr'],
         ],
 		'params' => [
-		    'prefix' => 'push_*'
+		    'prefix'  => 'push_*',
+		    'moveDir' => 'done/'
 		]
 	];
 

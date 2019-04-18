@@ -3,113 +3,131 @@
 class SpoolFiles {
     
     
+    private $logs;
     private $spaceId;
-    private $error = false;
+    private $error;
     
     
     public function __construct(array $files) {
         
+        $this->logs = new Log(Config::get('logs/push'));
+        
+        if ( $this->logs->error() ) {
+            
+            echo('Erreur sur fichier log');
+            return;
+        }
+        $this->logs->init();
+        
+        
         if ( empty($files) ) {
             
-            $GLOBALS['logs']->put("aucun fichier à traiter");
+            $this->logs->put("aucun fichier a traiter");
             return;            
         }
         
         foreach( $files as $file ) {
             
-            $GLOBALS['logs']->put("fichier traité : {$file}");
+            $this->error = false;
+            $this->logs->put("fichier traite : {$file}");
             
             $input = json_decode(
                 file_get_contents($file),
                 true
                 );
             
-            if ( is_null($input) )  { $GLOBALS['logs']->put(json_last_error().json_last_error_msg()); }
-            
-            $push = new AutoObject($input['status_report']['sms'][0]);
-            
-            $this->spaceId = $push->get('space_id');
-            
-            if ( array_search($this->spaceId, array_keys(Config::get('agences'))) === false ) {
+            if ( is_null($input) )  { 
                 
-                $GLOBALS['logs']->put("spaceId introuvable : {$this->spaceId}");
+                $this->logs->put(json_last_error().json_last_error_msg()); 
             }
             else {
-
-                $GLOBALS['logs']->put("-->statut: {$push->get('status')}");
                 
-                switch ( $push->get('status') ) {
+                $push = new AutoObject($input['status_report']['sms'][0]);
+                
+                $this->spaceId = $push->get('space_id');
+                
+                if ( array_search($this->spaceId, array_keys(Config::get('agences'))) === false ) {
                     
-                    case 'ERROR':
-                        
-                        $this->forwardError($push);
-                        break;
-                        
-                    case 'ABORTED':
-                        
-                        $this->forwardError($push);
-                        break;
-                        
-                    case 'ANSWERED':
-                        
-                        $this->forwardAnswer($push);
-                        break;
-                        
-                    default:
-                        
-                        $GLOBALS['logs']->put('--> ce cas n\'est pas prévu');
+                    $this->logs->put("spaceId introuvable : {$this->spaceId}");
+                }
+                else {
+    
+                    $this->logs->put("--> statut: {$push->get('status')}");
+                    
+                    if ( in_array(
+                        $push->get('status'), 
+                        ['ERROR', 'ABORTED', 'ANSWERED']
+                        ) ) {
+                            
+                        $this->forwardResult($push);
+                    }
+                    else {
+                        $this->logs->put('--> non traite');
+                    }
                 }
             }
             
+            rename($file, Config::get('params/moveDir').$file);
         }
+        $this->logs->close();
     }
     
     
-    private function forwardAnswer($push) {
+    private function forwardResult($push) {
         
         $cra = $this->findOrigin($push);
 debug($cra);
 
-        $date = date('d/m/Y H:i', (int)substr($cra['lastCall'], 0, 10));
-        
-        $html = "
-            Votre SMS du {$date} vers le numéro {$cra['to']} :<br>
-            {$cra['textMsg']}<br><br>
-            a reçu une réponse :<br>
-            {$cra['callResponse']}
-            ";
+        if ( !$this->error ) {
             
-        $mail = sendMail(
-            'SMS : réponse reçue',
-            $html,
-            $GLOBALS['_DEV'] ? ['fredericmevollon@universpneus.com'] : [Config::get('agences')[$spaceId][MAIL]]
-            );
-        
-        $GLOBALS['logs']->put($mail === true ? '--> mail envoyé' : '--> erreur : '.$mail);
-    }
+            $date = date('d/m/Y H:i', (int)substr($cra['lastCall'], 0, 10));
 
-    
-    private function forwardError($push) {
-        
-        $cra = $this->findOrigin($push);
-debug($cra);
-
-        $date = date('d/m/Y H:i', (int)substr($cra['lastCall'], 0, 10));
-        
-        $html = "
-            Votre SMS du {$date} vers le numéro {$cra['to']} :<br>
-            {$cra['textMsg']}<br><br>
-            a rencontré une erreur :<br>
-            {$cra['lastResult']}
-            ";
+            switch ( $push->get('status') ) {
+                
+                case 'ANSWERED':
+                    
+                    $html = "
+                        Votre SMS du {$date} vers le numéro {$cra['to']} :<br>
+                        {$cra['textMsg']}<br><br>
+                        a reçu une réponse :<br>
+                        {$cra['callResponse']}
+                        ";
+                        
+                    $object = 'SMS : réponse reçue';
+                    break;
+                    
+                default:
+                    
+                    $html = "
+                        Votre SMS du {$date} vers le numéro {$cra['to']} :<br>
+                        {$cra['textMsg']}<br><br>
+                        a rencontré une erreur :<br>
+                        {$cra['lastResult']}
+                        ";
+                        
+                    $object = 'SMS : erreur survenue';
+            }
+                
+            $mail = sendMail(
+                $object,
+                $html,
+                $GLOBALS['_DEV'] ? ['fredericmevollon@universpneus.com'] : [Config::get('agences')[$spaceId][MAIL]]
+                );
             
-        $mail = sendMail(
-            'SMS : erreur survenue',
-            $html,
-            $GLOBALS['_DEV'] ? ['fredericmevollon@universpneus.com'] : [Config::get('agences')[$spaceId][MAIL]]
-            );
-        
-        $GLOBALS['logs']->put($mail === true ? '--> mail envoyé' : '--> erreur : '.$mail);
+            $this->logs->put($mail === true ? '--> mail envoye' : '--> erreur : '.$mail);
+        }
+        else {
+            
+            $this->logs->put('--> erreur sur API');
+
+            $mail = sendMail(
+                'Push-Cra : erreurs de traitement',
+                'logs : '.Config::get('logs/link'),
+                $GLOBALS['_DEV'] ? ['fredericmevollon@universpneus.com'] : [Config::get('mailing/listBCC')]
+                );
+            
+            $this->logs->put($mail === true ? '--> mail ADMIN envoye' : '--> erreur : '.$mail);
+        }
     }
 
     
@@ -121,7 +139,7 @@ debug($cra);
         
         if ( $call->error() ) {
             
-            $GLOBALS['logs']->put($call->message());
+            $this->logs->put($call->message());
             $this->error = true;
         }
         else {
@@ -137,7 +155,7 @@ debug($cra);
             
             if ( $call->error() ) {
                 
-                $GLOBALS['logs']->put($call->message());
+                $this->logs->put($call->message());
                 $this->error = true;
             }
             else {
