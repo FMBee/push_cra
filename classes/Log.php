@@ -26,12 +26,12 @@ class Log {
 	public function init() {
 		
 		$this->put('*--------------------------------*', '');
-		$this->put(date('c') .' process begins');
+		$this->put(date('d-m-Y H:i:s', time()) .' process begins');
 	}
 	
 	public function close() {
 	
-		$this->put(date('c') .' end of process');
+	    $this->put(date('d-m-Y H:i:s', time()) .' end of process');
 		
 		fclose($this->_handle);
 	}
