@@ -74,39 +74,40 @@ class SpoolFiles {
     }
     
     
-    private function forwardResult($push) {
+    private function forwardResult(AutoObject $push) {
         
-        $cra = $this->findOrigin($push);
-debug($cra);
+        $this->findOrigin($push, $cra, $craInfo);
+// debug($cra);
+// debug($craInfo);
 
         if ( !$this->error ) {
             
-            $date = date('d/m/Y H:i', (int)substr($cra['lastCall'], 0, 10));
+            $date = date('d/m/Y H:i', (int)substr($cra->get('creationDate'), 0, 10));
 
             switch ( $push->get('status') ) {
                 
                 case 'ANSWERED':
                     
                     $html = "
-                        Votre SMS du {$date} vers le numéro {$cra['to']} :<br>
-                        {$cra['textMsg']}<br><br>
+                        Votre SMS du {$date} vers le numéro {$craInfo->get('to')} :<br>
+                        {$craInfo->get('textMsg')}<br><br>
                         a reçu une réponse :<br>
-                        {$cra['callResponse']}
+                        {$craInfo->get('callResponse')}
                         ";
                         
-                    $object = "SMS au {$cra['to']} : réponse reçue";
+                    $object = "SMS au {$craInfo->get('to')} : réponse reçue";
                     break;
                     
                 default:
                     
                     $html = "
-                        Votre SMS du {$date} vers le numéro {$cra['to']} :<br>
-                        {$cra['textMsg']}<br><br>
+                        Votre SMS du {$date} vers le numéro {$craInfo->get('to')} :<br>
+                        {$craInfo->get('textMsg')}<br><br>
                         a rencontré une erreur :<br>
-                        {$cra['lastResult']}
-                        ";
+                        {$craInfo->get('lastResult')} / 
+                        ".utf8_decode($push->get('status_list')[0]['info']);
                         
-                    $object = "SMS au {$cra['to']} : erreur survenue";
+                    $object = "SMS au {$craInfo->get('to')} : erreur survenue";
             }
                 
             $mail = sendMail(
@@ -136,7 +137,7 @@ debug($cra);
     }
 
     
-    private function findOrigin($push) {
+    private function findOrigin(AutoObject $push, &$cra, &$craInfo) {
         
         $call = new FindCraByIds($this->connection());
         
@@ -172,7 +173,7 @@ debug($cra);
                     
                     if ( $single['messageId'] == $cra->get('contactId') ) {
                         
-                        return $single;
+                        $craInfo = new AutoObject($single);
                     }
                 }
             }

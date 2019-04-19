@@ -2,7 +2,7 @@
 
     error_reporting(E_ALL);
 
-    $dir = glob('done/push_*');
+    $dir = glob('push_*');
     
     echo "
 <!DOCTYPE html>
