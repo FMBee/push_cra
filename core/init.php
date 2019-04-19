@@ -73,7 +73,7 @@
 		    'listA'		=> [
 			],
 			'listBCC'	=> [
-//  							'mathieulequin@universpneus.com',
+ 							'mathieulequin@universpneus.com',
 							'fredericmevollon@universpneus.com'
 			],
 		],

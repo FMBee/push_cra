@@ -1,13 +1,14 @@
 <?php
 
-    $file = 'push_'.(new \Datetime())->format('y-m-d_H-i-s-').gettimeofday()['usec'].'.txt';
+    $file = 'push_'.(new \Datetime())->format('y-m-d__H-i-s-').gettimeofday()['usec'].'.txt';
     
     // $_POST est vide si xml ou json
     $input = file_get_contents("php://input");
     
     file_put_contents($file, utf8_encode($input));
     
-
+    copy($file, 'histo/'.$file);
+    
 /*
  
 Array
