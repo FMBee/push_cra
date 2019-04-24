@@ -1,3 +1,48 @@
-MzT0Qt5o
-http://vps300047.ovh.net/push_cra/push-list.php
+
+***** module pushCra
+
+une cron locale effectue le téléchargement SFTP des fichiers push (cf. [cronGet])
+(cette cron ne peut être gérée par le module LDTCron pour cause de droits SSH)
+
+le module LDTCron lance le module de traitement [push-get.php] (toutes les X minutes)
+[push-get.php] traite les fichiers push téléchargés [push_yy-mm-dd__hh-ii-ss-ms.txt]
+seuls les status ERROR et ANSWERED sont gérés, avec envoi des mails aux emetteurs
+les fichiers traités sont déplacés dans le dossier [done]
+
+
+liste pushs traités:
+  https://unp0011vu/push_cra/done/push-list.php
+
+paramètres:
+  core/init.php
+  (liste des agences, spaceId, mails, ...)
+  
+logs:
+  logs/push.log
+
+
+
+
+
+
+***** serveur PUSH
+
+les pushs SMS sont écrits par le module [push-write.php]
+dans le répertoire [push_cra] en attente de leur envoi FTP
+une copie est placée dans le répertoire [histo]
+
+fichiers push:
+  push_yy-mm-dd__hh-ii-ss-ms.txt
+
+URL de push:
+  http://vps300047.ovh.net/push_cra/push-write.php
+
+login:
+  root/MzT0Qt5o
+  
+liste pushs en attente:  
+  http://vps300047.ovh.net/push_cra/push-list.php
+  
+historique:  
+  http://vps300047.ovh.net/push_cra/histo/push-list.php
 
