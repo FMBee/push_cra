@@ -1,1 +1,0 @@
-lftp -e 'glob get /var/www/html/push_cra/push_*;bye' -u root,MzT0Qt5o sftp://46.105.31.186

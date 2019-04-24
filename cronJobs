@@ -1,2 +1,1 @@
-*/5 * * * * cd /var/www/push_cra ; sh get.sh
 */5 * * * * cd /var/www/push_cra ; php push-get.php
