@@ -11,15 +11,15 @@ seuls les status ERROR et ANSWERED sont gérés, avec envoi des mails aux emette
 les fichiers traités sont déplacés dans le dossier [done]
 
 
-liste pushs traités:
-  https://unp0011vu/push_cra/done/push-list.php
-
 paramètres:
   core/init.php
   (liste des agences, spaceId, mails, ...)
+
+liste pushs traités:
+  https://unp0011vu/push_cra/done/push-list.php
   
 logs:
-  logs/push.log
+  https://unp0011vu/push_cra/logs/push.log
 
 
 
