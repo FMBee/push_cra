@@ -114,7 +114,7 @@ class SpoolFiles {
                 $object,
                 $html,
                 $GLOBALS['_DEV'] ? 
-                    ['fredericmevollon@universpneus.com'] : 
+                    ['fredericmevollon@universpneus.com', 'mathieulequin@universpneus.com'] : 
                     array_merge([Config::get('agences')[$this->spaceId][MAIL]], [Config::get('mailing/listBCC')])
                 );
             
