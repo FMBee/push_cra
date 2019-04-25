@@ -55,9 +55,9 @@ class SpoolFiles {
                     $this->logs->put("--> statut: {$push->get('status')}");
                     
                     if ( in_array(
-                        $push->get('status'), 
-                        ['ERROR', 'ABORTED', 'ANSWERED']
-                        ) ) {
+                            $push->get('status'), 
+                            ['ERROR', 'ABORTED', 'ANSWERED']
+                            ) ) {
                             
                         $this->forwardResult($push);
                     }
@@ -76,9 +76,23 @@ class SpoolFiles {
     
     private function forwardResult(AutoObject $push) {
         
-        $this->findOrigin($push, $cra, $craInfo);
-// debug($cra);
-// debug($craInfo);
+        $call = new GetBroadcast($this->connection());
+        
+        $call->sendRequest($push->get('broadcast_id'));
+        
+        if ( $call->error() ) {
+            
+            $this->logs->put($call->message());
+            $this->error = true;
+        }
+        else {
+
+            $broad = new AutoObject($call->results());
+debug($broad);            
+            
+            $this->findResponse($push, $broad, $cra, $craInfo);
+        }
+        
 
         if ( !$this->error ) {
             
@@ -137,7 +151,7 @@ class SpoolFiles {
     }
 
     
-    private function findOrigin(AutoObject $push, &$cra, &$craInfo) {
+    private function findResponse(AutoObject $push, AutoObject $broad, &$cra, &$craInfo) {
         
         $call = new FindCraByIds($this->connection());
         
@@ -151,13 +165,93 @@ class SpoolFiles {
         else {
             
             $cra = new AutoObject($call->results()[0]);
-// debug($cra);
+debug($cra);
             
-            $date = new \DateTime(date('y-m-d', (int)$cra->get('creationDate')));
+            // l'API gere les timestamps sur 13 digits, PHP sur 10
+            $dateD = new \DateTime(date('y-m-d', (int)substr($cra->get('creationDate'), 0, 10)));
+            $dateF = $dateD->add(new \DateInterval('P1D'));
+
+            switch ( $broad->get('scenarioName') ) {
+                
+                // SMS unitaires
+                case 'UnitarySMS':
+
+                    $call = new GetSingleCallCra($this->connection());
+
+                    // l'API gere les timestamps sur 13 digits
+                    $call = $call->sendRequest(
+                        'date', 
+                        (string)($dateD->getTimestamp() * 1000)
+                        );
+                    
+                    $labelId = 'messageId';
+                    break;
+                    
+                // MailToSMS    
+                default:
+                    
+                    $call = new GetResponsesSMS($this->connection());
+
+                    // l'API gere les timestamps sur 13 digits
+                    $call = $call->sendRequest(
+                        'date', 
+                        (string)($dateD->getTimestamp() * 1000),
+                        (string)($dateF->getTimestamp() * 1000)
+                        );
+                    
+                    $labelId = 'contactId';
+                    break;
+                    
+            }
+
+            if ( $call->error() ) {
+                
+                $this->logs->put($call->message());
+                $this->error = true;
+            }
+            else {
+                
+                // liste SMS de la journée de creation
+                $listCra = new AutoObject($call->results());
+debug($listCra);        
+                
+                foreach ( $listCra->get('list') as $single ) {
+                    
+                    // reponse et message origine
+                    if ( $single[$labelId] == $cra->get('contactId') ) {
+                        
+                        $craInfo = new AutoObject($single);
+                    }
+                }
+debug($craInfo);                        
+            }
+        }
+    }
+    
+    private function findMailToOrigin(AutoObject $push, &$cra, &$craInfo) {
+        
+        $call = new FindCraByIds($this->connection());
+        
+        $call->sendRequest($push->get('contact_id'));
+        
+        if ( $call->error() ) {
             
+            $this->logs->put($call->message());
+            $this->error = true;
+        }
+        else {
+            
+            $cra = new AutoObject($call->results()[0]);
+debug($cra);
+            
+            // l'API gere les timestamps sur 13 digits, PHP sur 10
+            $date = new \DateTime(date('y-m-d', (int)substr($cra->get('creationDate'), 0, 10)));
+debug($date);
+
             $call = new GetSingleCallCra($this->connection());
             
-            $call = $call->sendRequest('date', $date->getTimestamp());
+            // l'API gere les timestamps sur 13 digits
+            $call = $call->sendRequest('date', (string)($date->getTimestamp() * 1000));
             
             if ( $call->error() ) {
                 
@@ -166,16 +260,19 @@ class SpoolFiles {
             }
             else {
                 
+                // liste SMS de la journée de creation
                 $listCra = new AutoObject($call->results());
-// debug($listCra);        
+debug($listCra);        
                 
                 foreach ( $listCra->get('list') as $single ) {
                     
+                    // message origine
                     if ( $single['messageId'] == $cra->get('contactId') ) {
                         
                         $craInfo = new AutoObject($single);
                     }
                 }
+debug($craInfo);                        
             }
         }
     }

@@ -21,7 +21,7 @@ class GetSingleCallCra extends ApiMethod {
             
             case 'date':
                 
-                $this->query .= '&beginDate=' .urlencode($seek);
+                $this->query .= '&beginDate=' .$seek;
                 break;
             
             case 'page':
