@@ -54,7 +54,7 @@ abstract class ApiMethod {
             else {
 
                 $this->error = true;
-                $this->message = $results['errorDetail'];
+                $this->message = $results['errorCode'].' / '.$results['errorDetail'];
             }
         }
     }

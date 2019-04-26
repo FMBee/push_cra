@@ -67,7 +67,7 @@ class SpoolFiles {
                 }
             }
             
-            rename($file, Config::get('params/moveDir').$file);
+            if ( !$this->error )    rename($file, Config::get('params/moveDir').$file);
         }
         
         $this->logs->close();
@@ -103,25 +103,25 @@ debug($broad);
                 case 'ANSWERED':
                     
                     $html = "
-                        Votre SMS du {$date} vers le numéro {$craInfo->get('to')} :<br>
+                        Votre SMS du {$date} vers le numéro {$cra->get('phoneNumber1')} :<br>
                         {$craInfo->get('textMsg')}<br><br>
                         a reçu une réponse :<br>
                         {$craInfo->get('callResponse')}
                         ";
                         
-                    $object = "SMS au {$craInfo->get('to')} : réponse reçue";
+                    $object = "SMS au {$cra->get('phoneNumber1')} : réponse reçue";
                     break;
                     
                 default:
                     
                     $html = "
-                        Votre SMS du {$date} vers le numéro {$craInfo->get('to')} :<br>
+                        Votre SMS du {$date} vers le numéro {$cra->get('phoneNumber1')} :<br>
                         {$craInfo->get('textMsg')}<br><br>
                         a rencontré une erreur :<br>
                         {$craInfo->get('lastResult')} / 
                         ".utf8_decode($push->get('status_list')[0]['info']);
                         
-                    $object = "SMS au {$craInfo->get('to')} : erreur survenue";
+                    $object = "SMS au {$cra->get('phoneNumber1')} : erreur survenue";
             }
                 
             $mail = sendMail(
@@ -169,7 +169,8 @@ debug($cra);
             
             // l'API gere les timestamps sur 13 digits, PHP sur 10
             $dateD = new \DateTime(date('y-m-d', (int)substr($cra->get('creationDate'), 0, 10)));
-            $dateF = $dateD->add(new \DateInterval('P1D'));
+            $dateF = clone $dateD;
+            $dateF->add(new \DateInterval('P1D'));
 
             switch ( $broad->get('scenarioName') ) {
                 
@@ -184,6 +185,7 @@ debug($cra);
                         (string)($dateD->getTimestamp() * 1000)
                         );
                     
+                    $mode = 'unitary';
                     $labelId = 'messageId';
                     break;
                     
@@ -191,14 +193,14 @@ debug($cra);
                 default:
                     
                     $call = new GetResponsesSMS($this->connection());
-
+                    
                     // l'API gere les timestamps sur 13 digits
                     $call = $call->sendRequest(
-                        'date', 
                         (string)($dateD->getTimestamp() * 1000),
                         (string)($dateF->getTimestamp() * 1000)
                         );
                     
+                    $mode = 'mailto';
                     $labelId = 'contactId';
                     break;
                     
@@ -221,55 +223,8 @@ debug($listCra);
                     if ( $single[$labelId] == $cra->get('contactId') ) {
                         
                         $craInfo = new AutoObject($single);
-                    }
-                }
-debug($craInfo);                        
-            }
-        }
-    }
-    
-    private function findMailToOrigin(AutoObject $push, &$cra, &$craInfo) {
-        
-        $call = new FindCraByIds($this->connection());
-        
-        $call->sendRequest($push->get('contact_id'));
-        
-        if ( $call->error() ) {
-            
-            $this->logs->put($call->message());
-            $this->error = true;
-        }
-        else {
-            
-            $cra = new AutoObject($call->results()[0]);
-debug($cra);
-            
-            // l'API gere les timestamps sur 13 digits, PHP sur 10
-            $date = new \DateTime(date('y-m-d', (int)substr($cra->get('creationDate'), 0, 10)));
-debug($date);
-
-            $call = new GetSingleCallCra($this->connection());
-            
-            // l'API gere les timestamps sur 13 digits
-            $call = $call->sendRequest('date', (string)($date->getTimestamp() * 1000));
-            
-            if ( $call->error() ) {
-                
-                $this->logs->put($call->message());
-                $this->error = true;
-            }
-            else {
-                
-                // liste SMS de la journée de creation
-                $listCra = new AutoObject($call->results());
-debug($listCra);        
-                
-                foreach ( $listCra->get('list') as $single ) {
-                    
-                    // message origine
-                    if ( $single['messageId'] == $cra->get('contactId') ) {
                         
-                        $craInfo = new AutoObject($single);
+                        if ( $mode == 'mailto' )    $craInfo->__set('textMsg', '(message non récupéré)');
                     }
                 }
 debug($craInfo);                        
